@@ -4,7 +4,7 @@ import * as Utils from './utils';
 export default App;
 
   function App() {
-  const [hex, setHex] = useState(() => '0'.repeat(40));
+  const [hex, setHex] = useState(() => '0'.repeat(128));
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     const input = e.currentTarget;
@@ -70,8 +70,14 @@ export default App;
   };
 
   return (
-    <div style={{ display: 'flex', gap: '12px', padding: '20px' }}>
-      {Array.from({ length: 5 }, (_, index) => {
+    <div style={{ 
+      display: 'flex', 
+      flexWrap: 'wrap',
+      gap: '14px 12px',
+      padding: '20px',
+      maxWidth: '100%'
+    }}>
+      {Array.from({ length: 16 }, (_, index) => {
         return (
           <input key={index} type="text" placeholder="00000000"
             value={hex.substring(index * 8, (index * 8) + 8)}

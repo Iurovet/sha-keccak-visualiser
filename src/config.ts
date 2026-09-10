@@ -1,5 +1,7 @@
 class Config {
   static sha1 = {
+    startValues: ["67452301", "EFCDAB89", "98BADCFE", "10325476", "0xC3D2E1F0"],
+    
     rounds: 80,
 
     function: {
