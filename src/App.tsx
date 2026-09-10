@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-
+import { Config as cfg } from './config';
+import * as Utils from './utils';
 export default App;
 
-function App() {
+  function App() {
   const [hex, setHex] = useState(() => '0'.repeat(40));
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -12,6 +13,15 @@ function App() {
     if (e.key.length === 1) {
       // Prevent normal browser behaviour
       e.preventDefault();
+
+      let currFunction = cfg.sha1.function["0"]
+      const context: Utils.EvaluationContext = { 
+        B: parseInt(hex.substring(8, 16), 16), 
+        C: parseInt(hex.substring(16, 24), 16), 
+        D: parseInt(hex.substring(24, 32), 16) 
+      }; 
+      let result = Utils.evaluate(Utils.parse(Utils.toTokens(currFunction)), context);
+      console.log((result >>> 0).toString(16).toUpperCase()); // Logging for testing only
 
       // Reject non-hex input
       if (/^[0-9a-fA-F]$/.test(e.key)) {
