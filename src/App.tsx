@@ -1,28 +1,18 @@
 import React, { useState } from 'react';
-import { Config as cfg } from './config';
-import * as Utils from './utils';
+import * as Methods from './utils/utils_methods';
 export default App;
 
-  function App() {
-  const [hex, setHex] = useState(() => '0'.repeat(128));
+function App() {
+  const [hex, setHex] = useState(() => '0'.repeat(640));
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     const input = e.currentTarget;
     const cursorPosition = input.selectionStart || 0;
 
-    if (e.key.length === 1) {
-      // Prevent normal browser behaviour
+      // Prevent normal events
       e.preventDefault();
 
-      let currFunction = cfg.sha1.function["0"]
-      const context: Utils.EvaluationContext = { 
-        B: parseInt(hex.substring(8, 16), 16), 
-        C: parseInt(hex.substring(16, 24), 16), 
-        D: parseInt(hex.substring(24, 32), 16) 
-      }; 
-      let result = Utils.evaluate(Utils.parse(Utils.toTokens(currFunction)), context);
-      console.log((result >>> 0).toString(16).toUpperCase()); // Logging for testing only
-
+    if (e.key.length === 1) {
       // Reject non-hex input
       if (/^[0-9a-fA-F]$/.test(e.key)) {
         const globalBoxStart = index * 8;
@@ -30,7 +20,7 @@ export default App;
         // If cursor is at the end of the box (position 8), lock it to overwrite the 8th character
         const overwriteIndex = cursorPosition === 8 ? globalBoxStart + 7 : globalBoxStart + cursorPosition;
 
-        // Replace exactly ONE character in our master state string
+        // Replace just this character in our master state string
         const newHex = 
           hex.substring(0, overwriteIndex) + 
           e.key + 
@@ -48,9 +38,6 @@ export default App;
 
     // Backspace or delete
     else if (e.key === 'Backspace' || e.key === 'Delete') {
-      // Prevent normal events
-      e.preventDefault();
-
       if (cursorPosition > 0) {
         const globalBoxStart = index * 8;
         const targetGlobalIndex = globalBoxStart + cursorPosition - 1;
@@ -67,6 +54,9 @@ export default App;
         }, 0);
       }
     }
+
+    // Update the message schedule
+    Methods.updateSchedule(hex, setHex);
   };
 
   return (
