@@ -20,7 +20,8 @@ export interface EvaluationContext {
 }
 
 // Functions supported
-export type BitwiseFunctionName = 'AND' | 'OR' | 'XOR' | 'NOT';
+export type FunctionName =
+'AND' | 'OR' | 'XOR' | 'NOT' | 'ROTL' | 'ADDMOD232';
 
 // Get words, commas, brackets
 function toTokens(str: string): string[] {
@@ -85,7 +86,7 @@ function evaluate(node: ASTNode, context: EvaluationContext): number {
     if (val !== undefined) {
       return val;
     }
-    
+
     // If it's not in context, try parsing it as a base-10 number or hex/binary literal
     const parsed = Number(node.value);
     if (isNaN(parsed)) {
@@ -97,7 +98,7 @@ function evaluate(node: ASTNode, context: EvaluationContext): number {
   if (node.type === 'Function') {
     // Recursively evaluate all arguments first
     const args = node.arguments.map(arg => evaluate(arg, context));
-    const upperName = node.name.toUpperCase() as BitwiseFunctionName;
+    const upperName = node.name.toUpperCase() as FunctionName;
 
     if (args.length === 0) {
       throw new Error(`Function ${node.name} requires at least one argument.`);
@@ -111,7 +112,12 @@ function evaluate(node: ASTNode, context: EvaluationContext): number {
       case 'XOR': 
         return args.reduce((acc, val) => acc ^ val);
       case 'NOT': 
-        return ~args[0]; // NOT only operates on the first argument
+        return ~args[0]; // 1 argument
+      case 'ROTL':
+        args[1] %= 32 // modulo 32 bits
+        return (args[0] << args[1]) || (args[0] >> (32-args[1]));
+      case 'ADDMOD232':
+        return (args[0] + args[1]) % (2^32);
       default:
         throw new Error(`Unknown function: ${node.name}`);
     }
