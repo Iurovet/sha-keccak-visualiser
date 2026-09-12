@@ -17,7 +17,6 @@ function updateSchedule(
       F: parseInt(hex.substring(8*(i-14), 8*(i-13)), 16),
       S: parseInt(hex.substring(8*(i-16), 8*(i-15)), 16)
     };
-    console.log("Lowest index is", 8*(i-16));
 
     let result_string = Functions.evaluate(
       Functions.parse(Functions.toTokens(currFunction)), context
