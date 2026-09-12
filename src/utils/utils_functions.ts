@@ -87,7 +87,7 @@ function evaluate(node: ASTNode, context: EvaluationContext): number {
       return val;
     }
 
-    // If it's not in context, try parsing it as a base-10 number or hex/binary literal
+    // If it's not in context, try parsing it as a number
     const parsed = Number(node.value);
     if (isNaN(parsed)) {
       throw new ReferenceError(`Variable "${node.value}" is not defined in context.`);

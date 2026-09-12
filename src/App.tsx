@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
+import { SHA1 } from './configs/configs_sha1';
 import * as Methods from './utils/utils_methods';
 export default App;
 
 function App() {
-  const [hex, setHex] = useState(() => '0'.repeat(640));
+  // Instantiate the config object
+  const sha1 = new SHA1();
+
+  // The 1st fifth (8*16=128) is the raw input, the rest is the message schedule
+  const [userInput, setUserInput] = useState(() => '0'.repeat(8 * 80));
+
+  // The output is always 8*5=40 hex characters
+  const [runningTotal, setRunningTotal] = useState(sha1.startValue);
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     const input = e.currentTarget;
@@ -22,11 +30,11 @@ function App() {
 
         // Replace just this character in our master state string
         const newHex = 
-          hex.substring(0, overwriteIndex) + 
+          userInput.substring(0, overwriteIndex) + 
           e.key + 
-          hex.substring(overwriteIndex + 1);
+          userInput.substring(overwriteIndex + 1);
 
-        setHex(newHex);
+        setUserInput(newHex);
 
         // Move the cursor forward exactly 1 space manually
         setTimeout(() => {
@@ -42,10 +50,10 @@ function App() {
         const globalBoxStart = index * 8;
         const targetGlobalIndex = globalBoxStart + cursorPosition - 1;
 
-        setHex(
-          hex.substring(0, targetGlobalIndex + (e.key === 'Delete' ? 1 : 0)) + 
+        setUserInput(
+          userInput.substring(0, targetGlobalIndex + (e.key === 'Delete' ? 1 : 0)) + 
           '0' + 
-          hex.substring(targetGlobalIndex + (e.key === 'Delete' ? 2 : 1))
+          userInput.substring(targetGlobalIndex + (e.key === 'Delete' ? 2 : 1))
         );
 
         // Move the cursor back exactly 1 space manually
@@ -55,8 +63,13 @@ function App() {
       }
     }
 
-    // Update the message schedule
-    Methods.updateSchedule(hex, setHex);
+    for (let i = 0; i < sha1.rounds; ++i) {
+      // Track the new output
+      let newTotal = "";
+
+      // Update the message schedule
+      Methods.updateSchedule(userInput, setUserInput);
+    }
   };
 
   return (
@@ -70,7 +83,7 @@ function App() {
       {Array.from({ length: 16 }, (_, index) => {
         return (
           <input key={index} type="text" placeholder="00000000"
-            value={hex.substring(index * 8, (index * 8) + 8)}
+            value={userInput.substring(index * 8, (index * 8) + 8)}
             onKeyDown={(e) => handleKeyDown(index, e)} onChange={() => {}}
             style = {{
               textAlign: 'center',
