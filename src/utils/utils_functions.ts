@@ -98,7 +98,7 @@ function evaluate(node: ASTNode, context: EvaluationContext): number {
   if (node.type === 'Function') {
     // Recursively evaluate all arguments first
     const args = node.arguments.map(arg => evaluate(arg, context));
-    const upperName = node.name.toUpperCase() as FunctionName;
+    const upperName = node.name as FunctionName;
 
     if (args.length === 0) {
       throw new Error(`Function ${node.name} requires at least one argument.`);
@@ -115,9 +115,9 @@ function evaluate(node: ASTNode, context: EvaluationContext): number {
         return ~args[0]; // 1 argument
       case 'ROTL':
         args[1] %= 32 // modulo 32 bits
-        return (args[0] << args[1]) || (args[0] >> (32-args[1]));
+        return (args[0] << args[1]) | (args[0] >>> (32-args[1]));
       case 'ADDMOD232':
-        return (args[0] + args[1]) % (2^32);
+        return ((args[0] + args[1]) % (2 ** 32)) >>> 0;
       default:
         throw new Error(`Unknown function: ${node.name}`);
     }
